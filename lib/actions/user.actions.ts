@@ -111,3 +111,22 @@ export async function fetchUsers({
     throw new Error(`Failed to fetch users: ${error.message}`)
   }
 }
+
+export async function fetchActivity(userId: string) {
+  try {
+    connectToDB()
+
+    const userThreads = await Thread.find({ author: userId })
+
+    const childThreadId = userThreads.reduce((acc, thread) => acc.concat(thread.children), [])
+
+    const replies = await Thread.find({
+      _id: { $in: childThreadId },
+      author: { $ne: userId }
+    }).populate({ path: 'author', model: User, select: 'name image _id' })
+
+    return replies
+  } catch (error: any) {
+    throw new Error(`Failed to fetch activity: ${error.message}`)
+  }
+}
