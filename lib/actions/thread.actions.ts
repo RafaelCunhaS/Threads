@@ -36,9 +36,11 @@ export async function fetchThreads(pageNumber = 1, pageSize = 20) {
   try {
     connectToDB()
 
+    const skipAmount = (pageNumber - 1) * pageSize
+
     const threadsQuery = Thread.find({ parentId: { $in: [null, undefined] } })
       .sort({ createdAt: 'desc' })
-      .skip((pageNumber - 1) * pageSize)
+      .skip(skipAmount)
       .limit(pageSize)
       .populate({ path: 'author', model: User })
       .populate({
@@ -48,7 +50,7 @@ export async function fetchThreads(pageNumber = 1, pageSize = 20) {
 
     const totalThreadsCount = await Thread.countDocuments({ parentId: { $in: [null, undefined] } })
     const threads = await threadsQuery.exec()
-    const isNext = totalThreadsCount > pageNumber * pageSize + threads.length
+    const isNext = totalThreadsCount > skipAmount + threads.length
 
     return { threads, isNext }
   } catch (error: any) {
