@@ -1,1 +1,1 @@
-## A clone project of Meta's Trheads made for educational purposes
+## A clone project of Meta's Threads made for educational purposes
